@@ -1,0 +1,39 @@
+{
+  "_comment": "OpenAI / Anthropic function-calling (tool) schemas for the AceChange agent wallet. Wire each tool to AgentWallet.pay()/swap() (TS or Python). Non-custodial: the wallet signs locally.",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "pay_crypto",
+        "description": "Pay an amount of a token to any Base address. Non-custodial: the agent wallet signs and broadcasts; AceChange screens the recipient (OFAC/blacklist) and enforces session caps. Returns the transaction hash.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "to": { "type": "string", "description": "Recipient Base (0x…) address" },
+            "token": { "type": "string", "enum": ["USDC", "WETH", "ETH", "DAI", "cbBTC"] },
+            "amount": { "type": "string", "description": "Human amount, e.g. \"5\" or \"0.01\"" },
+            "est_usd": { "type": "number", "description": "Approx USD value, for cap enforcement" }
+          },
+          "required": ["to", "token", "amount", "est_usd"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "swap_crypto",
+        "description": "Swap one token for another on Base (0x gasless, no minimum, non-custodial). The agent wallet signs the 0x payload locally; AceChange relays it.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "sell": { "type": "string" },
+            "buy": { "type": "string" },
+            "amount": { "type": "string" },
+            "est_usd": { "type": "number" }
+          },
+          "required": ["sell", "buy", "amount", "est_usd"]
+        }
+      }
+    }
+  ]
+}
