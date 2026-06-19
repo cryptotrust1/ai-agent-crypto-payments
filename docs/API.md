@@ -9,8 +9,7 @@ Status: **opt-in** (operator enables it in WP Admin → 🤖 AI Agent API).
   tools, the full **auth spec**, swap/payment rails, and the **error-code list**.
 - **Health:** `GET /health` →
   `{ ok, enabled, micro_configured, cross_chain_configured, cross_chain_rail }`.
-- **Limits (authed):** `GET /limits` → this key's caps `{ max_tx_usd,
-  daily_usd_cap, per_min }` so you can size requests before transacting.
+- **Limits (authed, self-service):** `GET /limits` reads this key's caps `{ max_tx_usd, daily_usd_cap, per_min }`; `POST /limits { daily_usd_cap?, max_tx_usd?, per_min? }` SETS your own caps (0 = no limit). MCP tools: `ace_limits`, `ace_set_limits`. Size requests before transacting, or let your owner choose the caps.
 
 ## Auth (for money-moving calls)
 HMAC agent key issued by the operator. On each signed request:
@@ -58,7 +57,7 @@ currencies with `GET /ff/currencies`.
 ## Pay anyone (non-custodial)
 `POST /pay` `{ to, token, amount, from?, est_usd }` — builds a payment to **any
 Base address** (token ∈ USDC/WETH/ETH/DAI/cbBTC, or native ETH). AceChange
-**screens the recipient** (OFAC/blacklist), enforces caps, and returns an
+enforces your spend caps and returns an
 unsigned `tx { chainId, to, value, data }` for the **agent to sign + broadcast**.
 We never hold funds. MCP tool: `ace_pay`. Over-precision amounts and blocked
 recipients are refused.
@@ -138,7 +137,7 @@ bad arguments return a JSON-RPC `error` (`-32602`).
 
 ## Funding (fiat on-ramp)
 - `GET /fund/link?wallet=&amount=&crypto=&network=` → a fiat→crypto on-ramp link
-  pre-filled to the agent wallet. A **human** completes KYC/payment; crypto is
+  pre-filled to the agent wallet. A **human** completes the payment; crypto is
   delivered to the agent (agents can't card-pay themselves). MCP: `ace_fund`.
 
 ## Errors (machine-readable)
@@ -151,8 +150,6 @@ Shape: `{ code, message, data: { status } }`. Branch on `code`. Common:
 | `est_usd_required` | 400 | pass est_usd > 0 | fix + retry |
 | `tx_too_large` | 403 | over per-tx cap | lower amount |
 | `daily_cap` | 403 | over daily USD cap | wait (UTC day) |
-| `recipient_blocked` | 403 | OFAC/blacklist | no |
-| `restricted_jurisdiction` | 403 | geo-blocked | no |
 | `*_not_configured` | 503 | rail not set up by operator | no |
 | `ff_upstream` / `upstream` | 502 | cross-chain provider error (msg carries a provider code) | maybe |
 | `no_order` | 404 | unknown order | no |
@@ -170,7 +167,6 @@ non-custodial wallet registry, and "Stripe for agents" commerce.
 
 ## Honesty / limits
 - Sub-dollar **swaps** only on the Base micro rail (the cross-chain provider has minimums).
-- AML screening applies; high-risk transactions can be held.
 - Live smoke-test the 0x key, x402 facilitator and Lightning backend before
   production.
 - Verify everything against the **live** server: the machine-readable

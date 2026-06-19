@@ -131,7 +131,7 @@ Each session key carries:
 - `per_tx_usd` — max value per action
 - `daily_usd` — rolling daily cap
 - `allowed_tokens` — e.g. USDC,WETH (or "any")
-- `allowed_recipients` — explicit allowlist, or "any" (with OFAC screen always on)
+- `allowed_recipients` — explicit allowlist, or "any"
 - `expires_at` — auto-expiry
 - `status` — active | revoked
 
@@ -149,7 +149,6 @@ Enforced **twice**: on-chain by the smart account (v2) and off-chain by
   for anything that signs value.
 - 🟠 Encrypted keystore (AES-256-GCM); passphrase via env/OS keyring, never logged.
 - 🟠 Session keys default-deny: short expiry, tight caps, allowlist.
-- 🟠 OFAC/blacklist screen on every recipient (already built: `ffe_agent_screen_recipient`).
 - 🟠 Kill switch revokes instantly (registry + on-chain in v2).
 - 🟠 Full audit trail.
 

@@ -15,7 +15,6 @@ own key; AceChange **never** custodies funds. Built for **Base** + the
 - **Kill switch** — revoke a session instantly (`walletRevoke`).
 - **Policy enforced twice** — locally (this SDK) and server-side (AceChange).
 - **Headless** — programmatic signing, no browser popups.
-- **OFAC/blacklist screening** of every recipient (server side).
 - **Non-custodial** — keys never leave the machine; AceChange only stores public
   addresses + policy.
 

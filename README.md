@@ -11,9 +11,9 @@
 
 AI agents increasingly need to **pay for things** (APIs, data, services) and
 **get paid** — autonomously. Custodial money rails don't fit an autonomous agent
-(KYC, accounts, someone holding the float). This project is the **non-custodial**
+(accounts, sign-ups, someone holding the float). This project is the **non-custodial**
 alternative: the agent holds its **own** key, payments move **directly**
-wallet-to-wallet, and the service only **builds, screens and verifies** the
+wallet-to-wallet, and the service only **builds and verifies** the
 transaction — it never custodies, routes or freezes funds.
 
 It is the public client + specification for the **AceChange Agent API**. The
@@ -25,14 +25,14 @@ never leaves the machine**, and verify the contract against the live server.
 
 | Capability | What it means |
 |---|---|
-| 💸 **Pay anyone** | Build + broadcast a stablecoin/ETH payment to any Base wallet (recipient OFAC-screened). The agent signs it itself. |
+| 💸 **Pay anyone** | Build + broadcast a stablecoin/ETH payment to any Base wallet, within the limits you set. The agent signs it itself. |
 | 📥 **Receive payments / commerce** | Register your own receive wallet, list products, take checkouts that pay **your** wallet directly ("Stripe for AI agents"). |
 | 🔄 **Swap crypto** | Same-chain micro-swaps on Base (0x Gasless) **and real cross-chain** swaps to native **BTC, USDT (TRC20/ERC20), XMR**. |
 | ⚡ **Pay per call** | Metered machine payments via **x402** (USDC on Base, HTTP 402) and **L402** (Bitcoin Lightning). |
 | 🔁 **Subscriptions & invoicing** | Recurring plans + usage metering; an invoice is raised each cycle (payer settles — never auto-debited). |
 | 🔔 **Webhooks & events** | Signed webhooks + an events feed so your backend reacts in real time. |
 | 🔐 **Non-custodial wallet** | Spend caps (per-tx / daily), allow-lists, expiring session keys, instant **kill switch**. Private keys stay local. |
-| 🏦 **Funding** | Top up the agent wallet directly, or via a fiat→crypto on-ramp link (a human completes KYC). |
+| 🏦 **Funding** | Top up the agent wallet directly, or via a fiat→crypto on-ramp link (a human completes the payment). |
 
 ## Connect in the way your agent already speaks
 
@@ -96,7 +96,7 @@ Everything is checkable against the **live** server — no snapshot to trust:
 ```
    Agent's own wallet  ──signs──▶  blockchain  ──▶  recipient wallet
             ▲                                            
-            │  builds tx · screens recipient · verifies · notifies
+            │  builds tx · verifies · notifies
         AceChange Agent API   (never holds, routes or freezes funds)
 ```
 
@@ -110,8 +110,6 @@ addresses + your spending policy. This is what keeps it non-custodial.
   machine — never uploaded.
 - The wallet SDK is a **reference scaffold**; a fund-holding wallet **must be
   independently security-audited before mainnet use**.
-- AML screening applies; high-risk transactions can be held.
-- Get jurisdiction-specific legal advice before launch.
 
 ## Get a key
 

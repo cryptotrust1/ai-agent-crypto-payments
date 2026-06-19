@@ -5,7 +5,7 @@
       "type": "function",
       "function": {
         "name": "pay_crypto",
-        "description": "Pay an amount of a token to any Base address. Non-custodial: the agent wallet signs and broadcasts; AceChange screens the recipient (OFAC/blacklist) and enforces session caps. Returns the transaction hash.",
+        "description": "Pay an amount of a token to any Base address. Non-custodial: the agent wallet signs and broadcasts; AceChange enforces the session caps you set. Returns the transaction hash.",
         "parameters": {
           "type": "object",
           "properties": {
