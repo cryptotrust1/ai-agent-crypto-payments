@@ -13,7 +13,7 @@ import { createWalletClient, http, type Hex } from 'viem';
 import { base } from 'viem/chains';
 import { encryptPrivateKey, decryptPrivateKey, saveKeystore, loadKeystore } from './keystore.js';
 import { AceChangeAgent, type AceChangeConfig } from './acechange.js';
-import { localPolicyCheck, type Policy } from './policy.js';
+import { localPolicyCheck, assertDacsSpendMandate, type Policy, type DacsMandateMeta } from './policy.js';
 import { signGaslessQuote } from './zerox.js';
 
 export * from './keystore.js';
@@ -57,10 +57,19 @@ export class AgentWallet {
   get address(): `0x${string}` { return this.account.address; }
 
   /** Non-custodial pay: AceChange builds + screens the tx; we sign & broadcast. */
-  async pay(to: string, token: string, amount: string, estUsd = 0, session?: string): Promise<`0x${string}`> {
+  async pay(
+    to: string,
+    token: string,
+    amount: string,
+    estUsd = 0,
+    session?: string,
+    dacsMeta?: DacsMandateMeta
+  ): Promise<`0x${string}`> {
     if (this.policy) {
-      const v = localPolicyCheck(this.policy, { token, recipient: to, estUsd });
+      const v = localPolicyCheck(this.policy, { token, recipient: to, estUsd, dacsMeta });
       if (!v.ok) throw new Error(`local policy: ${v.reason}`);
+    } else if (dacsMeta) {
+      assertDacsSpendMandate(estUsd, dacsMeta);
     }
     const built = await this.api.pay({ to, token, amount, from: this.address, est_usd: estUsd, session });
     const tx = built.tx;
@@ -72,10 +81,18 @@ export class AgentWallet {
   }
 
   /** Non-custodial micro-swap on Base (0x gasless): quote → sign → submit. */
-  async swap(sell: string, buy: string, amount: string, estUsd = 0): Promise<any> {
+  async swap(
+    sell: string,
+    buy: string,
+    amount: string,
+    estUsd = 0,
+    dacsMeta?: DacsMandateMeta
+  ): Promise<any> {
     if (this.policy) {
-      const v = localPolicyCheck(this.policy, { token: sell, recipient: this.address, estUsd });
+      const v = localPolicyCheck(this.policy, { token: sell, recipient: this.address, estUsd, dacsMeta });
       if (!v.ok) throw new Error(`local policy: ${v.reason}`);
+    } else if (dacsMeta) {
+      assertDacsSpendMandate(estUsd, dacsMeta);
     }
     const { quote } = await this.api.swapQuote({ sell, buy, amount, taker: this.address });
     // Agent signs the 0x Gasless EIP-712 payload locally, then AceChange relays it.
